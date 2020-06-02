@@ -1,0 +1,78 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<zabbix_export>
+    <version>5.0</version>
+    <date>2020-06-02T19:00:21Z</date>
+    <groups>
+        <group>
+            <name>Templates/Network devices</name>
+        </group>
+    </groups>
+    <templates>
+        <template>
+            <template>Template Barracuda NG Firewall SNMP HA - for inactive members</template>
+            <name>Template Barracuda NG Firewall SNMP HA</name>
+            <templates>
+                <template>
+                    <name>Template Barracuda NG Firewall SNMP</name>
+                </template>
+            </templates>
+            <groups>
+                <group>
+                    <name>Templates/Network devices</name>
+                </group>
+            </groups>
+            <discovery_rules>
+                <discovery_rule>
+                    <name>NG Server-Service Discovery HA</name>
+                    <type>SNMP_AGENT</type>
+                    <snmp_oid>discovery[{#SNMPVALUE},PHION-MIB::serverServiceName]</snmp_oid>
+                    <key>serverServiceHA</key>
+                    <delay>1h</delay>
+                    <item_prototypes>
+                        <item_prototype>
+                            <name>Service State $1</name>
+                            <type>SNMP_AGENT</type>
+                            <snmp_oid>PHION-MIB::serverServiceState.{#SNMPINDEX}</snmp_oid>
+                            <key>serverServiceStateHA[{#SNMPVALUE}]</key>
+                            <delay>3m</delay>
+                            <history>1w</history>
+                            <applications>
+                                <application>
+                                    <name>Services</name>
+                                </application>
+                            </applications>
+                            <valuemap>
+                                <name>Service state</name>
+                            </valuemap>
+                            <request_method>POST</request_method>
+                            <trigger_prototypes>
+                                <trigger_prototype>
+                                    <expression>{last()}&lt;&gt;0</expression>
+                                    <name>Service {#SNMPVALUE} running on HA node</name>
+                                    <priority>HIGH</priority>
+                                    <description>Service should not run on HA slave node</description>
+                                </trigger_prototype>
+                            </trigger_prototypes>
+                        </item_prototype>
+                    </item_prototypes>
+                    <request_method>POST</request_method>
+                </discovery_rule>
+            </discovery_rules>
+        </template>
+    </templates>
+    <value_maps>
+        <value_map>
+            <name>Service state</name>
+            <mappings>
+                <mapping>
+                    <value>0</value>
+                    <newvalue>Down</newvalue>
+                </mapping>
+                <mapping>
+                    <value>1</value>
+                    <newvalue>Up</newvalue>
+                </mapping>
+            </mappings>
+        </value_map>
+    </value_maps>
+</zabbix_export>
